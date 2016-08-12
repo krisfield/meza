@@ -4,6 +4,9 @@
 #
 # Send an announcement to Slack reporting server performance
 #
+# Add this script as a scheduled task via crontab
+# */10 * * * * /opt/meza/scripts/server-performance.sh
+# Make sure permissions are set so the cron user has permission to execute this script
 
 if [ "$(whoami)" != "root" ]; then
     echo "Try running this script with sudo: \"sudo server-performance.sh\""
