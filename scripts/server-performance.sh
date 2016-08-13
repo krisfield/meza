@@ -13,16 +13,41 @@ if [ "$(whoami)" != "root" ]; then
     exit 1
 fi
 
-# Use this webhook to post to slack channel
-slackwebhook="<webhook>"
+# If /usr/local/bin is not in PATH then add it
+# Ref enterprisemediawiki/meza#68 "Run install.sh with non-root user"
+if [[ $PATH != *"/usr/local/bin"* ]]; then
+    PATH="/usr/local/bin:$PATH"
+fi
+
+source /opt/meza/config/core/config.sh
+
+if [ -f "/opt/meza/config/local/remote-wiki-config.sh" ]; then
+    source "/opt/meza/config/local/remote-wiki-config.sh"
+fi
+
+# Optional - Use this webhook instead of the one from remote-wiki-config.sh
+# slackwebhook="<webhook>"
 
 # get all the dataz
+datetime=$(date "+%Y%m%d%H%M%S")
 topdata=$(top -b -n 1)
 
 topheader=$(echo "$topdata" | grep "load average")
 # top - 15:36:28 up 48 days, 21:35,  1 user,  load average: 0.08, 0.16, 0.21
 # remove "top - "
 topheader=${topheader#top - }
+
+# uptime
+# TO-DO: Not sure how best to track uptime (consolidate into minutes?)
+
+# 1-minute load average
+loadavgall3=${topheader#*average: }
+loadavg1=${loadavgall3%,*,*}
+# 5-minute load average
+loadavg5=${loadavgall3#*, }
+loadavg5=${loadavg5%,*}
+# 15-minute load average
+loadavg15=${loadavgall3#*,*, }
 
 topmemory=$(echo "$topdata" | grep "KiB Mem")
 # KiB Mem : 16269056 total,   275304 free,  2177008 used, 13816744 buff/cache
@@ -66,6 +91,9 @@ memcachedtotalmem=$(echo "$topdata" | grep "memcach" | awk '{ sum += $10 } END {
 parsoidtotalmem=$(echo "$topdata" | grep "parsoid" | awk '{ sum += $10 } END { print sum }')
 apachetotalmem=$(echo "$topdata" | grep "apache" | awk '{ sum += $10 } END { print sum }')
 
+# add data point to database
+mysql -u root "--password=${mysql_root_pass}" -e"CREATE DATABASE IF NOT EXISTS server; use server; CREATE TABLE IF NOT EXISTS performance (datetime BIGINT, PRIMARY KEY (datetime), loadavg1 FLOAT(3), loadavg5 FLOAT(3), loadavg15 FLOAT(3), memorypercentused FLOAT(4), mysql FLOAT(4), es FLOAT(4), memcached FLOAT(4), parsoid FLOAT(4), apache FLOAT(4)); INSERT INTO performance (datetime, loadavg1, loadavg5, loadavg15, memorypercentused, mysql, es, memcached, parsoid, apache) VALUES ('$datetime', $loadavg1, $loadavg5, $loadavg15, $memorypercentused, $mysqltotalmem, $elastictotalmem, $memcachedtotalmem, $parsoidtotalmem, $apachetotalmem);"
+
 jsontitle="Performance Report"
 
 # at what level do we display amber color
@@ -88,7 +116,7 @@ fi
 
 report="${topheader} ${alerttext}${memoryusedtext}\nMySQL: ${mysqltotalmem}% ES: ${elastictotalmem}% Memcached: ${memcachedtotalmem}% Parsoid: ${parsoidtotalmem}% Apache: ${apachetotalmem}%"
 
-# Option 1: Manually create json instead of using meza script
+# Manually create json
 
 json="{
       \"attachments\": [
