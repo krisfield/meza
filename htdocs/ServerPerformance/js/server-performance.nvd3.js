@@ -56,7 +56,7 @@ $(document).ready(function(){
 
         chart.xAxis
             .tickFormat(function(d) {
-                return d3.time.format('%x')(new Date(d))
+                return d3.time.format('%x %X')(new Date(d))
             });
 
         chart.x2Axis
@@ -68,7 +68,7 @@ $(document).ready(function(){
             .tickFormat(d3.format(',.1f'));
 
         chart.y2Axis
-            .tickFormat(d3.format(',.1f'));
+            .tickFormat(d3.format(',.0f'));
 
         d3.select('#server-performance-plot svg')
             .datum( hitsData.dailyHits )
@@ -76,7 +76,7 @@ $(document).ready(function(){
             .transition().duration(500)
             .call(chart);
 
-        // $("#userjourney-chart svg").height( $(window).height() - 100 );
+        // $("#server-performance-chart svg").height( $(window).height() - 100 );
 
         nv.utils.windowResize(chart.update);
 
