@@ -65,10 +65,10 @@ $(document).ready(function(){
             });
 
         chart.yAxis
-            .tickFormat(d3.format(',.0f'));
+            .tickFormat(d3.format(',.1f'));
 
         chart.y2Axis
-            .tickFormat(d3.format(',.0f'));
+            .tickFormat(d3.format(',.1f'));
 
         d3.select('#server-performance-plot svg')
             .datum( hitsData.dailyHits )
