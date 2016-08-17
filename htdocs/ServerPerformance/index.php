@@ -55,10 +55,22 @@ while( $row = mysqli_fetch_assoc($res) ){
 
     foreach( $variables as $varname => $varvalue ){
 
-        $tempdata[$varvalue][] = array(
-            'x' => strtotime($ts) * 1000,   // e.g. from 20160624080000 to 1384236000000
-            'y' => floatval($$varvalue),    // e.g. 0.1
-        );
+        if( substr($varvalue,0,4) == "load"){
+            $tempdata[$varvalue][] = array(
+                'x' => strtotime($ts) * 1000,       // e.g. from 20160624080000 to 1384236000000
+                'y' => floatval($$varvalue) * 100,  // e.g. from 0.1 to 10
+            );
+        } else {
+            $tempdata[$varvalue][] = array(
+                'x' => strtotime($ts) * 1000,   // e.g. from 20160624080000 to 1384236000000
+                'y' => floatval($$varvalue),    // e.g. 10
+            );
+        }
+
+        // $tempdata[$varvalue][] = array(
+        //     'x' => strtotime($ts) * 1000,   // e.g. from 20160624080000 to 1384236000000
+        //     'y' => floatval($$varvalue),    // e.g. 10
+        // );
 
     }
 
