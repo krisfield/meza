@@ -72,6 +72,15 @@ This is an overview of the directory structure used by a meza server. This does 
 |		|	|	|-- LocalSettings.php -> /opt/meza/config/core/LocalSettings.php
 |		|	|	|-- maintenance/
 |		|	|	└--	(lots of standard MediaWiki stuff)
+|		|	|-- ServerPerformance/
+|		|	|	|-- index.php
+|		|	|	|-- css/
+|		|	|	|	|-- nv.d3.css
+|		|	|	|-- js/
+|		|	|	|	|-- d3.js
+|		|	|	|	|-- jquery-3.1.0.min.js
+|		|	|	|	|-- nv.d3.js
+|		|	|	|	|-- server-performance.nvd3.js
 |		|	|-- WikiBlender/ (see github/jamesmontalvo3/WikiBlender)
 |		|	|	|-- BlenderSettings.php -> /opt/meza/config/core/BlenderSettings.php
 |		|	|	|-- .gitignore
