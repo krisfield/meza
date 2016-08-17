@@ -30,6 +30,9 @@ fi
 
 # get all the dataz
 datetime=$(date "+%Y%m%d%H%M%S")
+dayofweek=$(date +%u)
+hour=$(date +%H)
+minute=$(date +%M)
 topdata=$(top -b -n 1)
 
 topheader=$(echo "$topdata" | grep "load average")
@@ -129,5 +132,32 @@ json="{
       ]
   }"
 
-curl -s -d "payload=$json" "$slackwebhook"
+# Notify slack by default
+notifyslack="true"
+
+# When good, only notify slack at 8:00 AM and 4:00 PM
+if [ "$jsoncolor" == "good" ]; then
+  notifyslack="false"
+  if [ $hour -eq 8 ] && [ $minute -eq 0 ]; then
+    notifyslack="true"
+  else
+    if [ $hour -eq 16 ] && [ $minute -eq 0 ]; then
+      notifyslack="true"
+    fi
+  fi
+fi
+
+# When warning, notify slack once per hour
+if [ "$jsoncolor" == "warning" ] && [ $minute -ne 0 ]; then
+  notifyslack="false"
+fi
+
+# Don't notify slack on weekends
+# if [ $dayofweek -eq 0 ] || [ $dayofweek -eq 7 ]; then
+#   notifyslack="false"
+# fi
+
+if [ $notifyslack == "true" ]; then
+  curl -s -d "payload=$json" "$slackwebhook"
+fi
 
