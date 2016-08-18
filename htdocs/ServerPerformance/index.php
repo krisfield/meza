@@ -15,6 +15,7 @@ date_default_timezone_set('America/Chicago');
 # currently only used for avg_response_time
 # remember that avg_response_time is later divided by 100
 $ceiling = 110;
+$load_ceiling = $ceiling / 100;
 $avg_response_time_ceiling = $ceiling * 100;
 
 require_once "/opt/meza/config/local/preLocalSettings_allWikis.php";
@@ -27,9 +28,9 @@ $dbtable = "performance";
 
 $query = "SELECT
             DATE_FORMAT( datetime, '%Y-%m-%d %H:%i:%s' ) AS ts,
-            LEAST(loadavg1, $ceiling),
-            LEAST(loadavg5, $ceiling),
-            LEAST(loadavg15, $ceiling),
+            LEAST(loadavg1, $load_ceiling) as loadavg1,
+            LEAST(loadavg5, $load_ceiling) as loadavg5,
+            LEAST(loadavg15, $load_ceiling) as loadavg15,
             memorypercentused,
             mysql,
             es,
