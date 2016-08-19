@@ -149,7 +149,7 @@ $mysqli = mysqli_connect("$servername", "$username", "$password", "$dbname");
 $res = mysqli_query($mysqli, $query);
 
 $variables = array("Hits"=>"hits",
-    "Average Response Time"=>"avg_response_time");
+    "Average Response Time (ds)"=>"avg_response_time");
 while( $row = mysqli_fetch_assoc($res) ){
 
     list($ts, $hits, $avg_response_time) = array($row['ts'], $row['hits'], $row['avg_response_time']);
