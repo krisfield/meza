@@ -114,14 +114,15 @@ fi
 if [ "$memorypercentusedrounded" -gt "$dangerlevel" ]; then
     jsoncolor="danger"
     # alert the channel
-    alerttext="\n<!everyone> "
+    alerttext="<!everyone>"
 fi
 
-report="${topheader} ${alerttext}${memoryusedtext}\nMySQL: ${mysqltotalmem}% ES: ${elastictotalmem}% Memcached: ${memcachedtotalmem}% Parsoid: ${parsoidtotalmem}% Apache: ${apachetotalmem}%"
+report="${topheader} ${memoryusedtext}\nMySQL: ${mysqltotalmem}% ES: ${elastictotalmem}% Memcached: ${memcachedtotalmem}% Parsoid: ${parsoidtotalmem}% Apache: ${apachetotalmem}%"
 
 # Manually create json
 
-json="{
+json="{ 
+      \"text\": \"${alerttext}\",
       \"attachments\": [
           {
               \"color\": \"${jsoncolor}\",
