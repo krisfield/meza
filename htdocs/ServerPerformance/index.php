@@ -11,6 +11,13 @@ define("NS_MAIN", "");
 # set timezone to prevent warnings when using strtotime()
 date_default_timezone_set('America/Chicago');
 
+# how many days of data shoudl we display?
+if( isset($_REQUEST['days']) && $_REQUEST['days'] > 0 ){
+    $daysOfData = $_REQUEST['days'];
+} else {
+    $daysOfData = 1; // default
+}
+
 # ceiling value to keep outlier values from skewing y axis
 # currently only used for avg_response_time
 # remember that avg_response_time is later divided by 100
@@ -37,7 +44,8 @@ $query = "SELECT
             memcached,
             parsoid,
             apache
-        FROM $dbtable;";
+        FROM $dbtable
+        WHERE DATE_FORMAT(datetime, '%Y-%m-%d') >= DATE_FORMAT(NOW(), '%Y-%m-%d') - INTERVAL $daysOfData DAY;";
 
 $mysqli = mysqli_connect("$servername", "$username", "$password", "$dbname");
 
@@ -136,7 +144,7 @@ foreach( $database as $db ){
                 DATE_FORMAT(CONVERT_TZ(hit_timestamp, '+00:00', @@global.time_zone), '%Y-%m-%d %H:%i:%s') AS converted_ts, 
                 response_time 
             FROM $db.wiretap 
-            WHERE DATE_FORMAT(CONVERT_TZ(hit_timestamp, '+00:00', @@global.time_zone), '%Y-%m-%d') >= DATE_FORMAT(NOW(), '%Y-%m-%d') - INTERVAL 1 WEEK ";
+            WHERE DATE_FORMAT(CONVERT_TZ(hit_timestamp, '+00:00', @@global.time_zone), '%Y-%m-%d') >= DATE_FORMAT(NOW(), '%Y-%m-%d') - INTERVAL $daysOfData DAY ";
 }
 
 $query .= ")a
