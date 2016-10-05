@@ -11,7 +11,7 @@ define("NS_MAIN", "");
 # set timezone to prevent warnings when using strtotime()
 date_default_timezone_set('America/Chicago');
 
-# how many days of data shoudl we display?
+# how many days of data should we display?
 if( isset($_REQUEST['days']) && $_REQUEST['days'] > 0 ){
     $daysOfData = $_REQUEST['days'];
 } else {
