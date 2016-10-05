@@ -35,6 +35,16 @@ hour=$(date +%H)
 minute=$(date +%M)
 topdata=$(top -b -n 1)
 
+jobs=0
+
+cd /opt/meza/htdocs/wikis
+for d in */
+do
+        wiki_id=${d%/}
+        moreJobs=$(WIKI=$wiki_id php /opt/meza/htdocs/mediawiki/maintenance/showJobs.php)
+        jobs=$(($jobs+$moreJobs))
+done
+
 topheader=$(echo "$topdata" | grep "load average")
 # top - 15:36:28 up 48 days, 21:35,  1 user,  load average: 0.08, 0.16, 0.21
 # remove "top - "
@@ -95,7 +105,7 @@ parsoidtotalmem=$(echo "$topdata" | grep "parsoid" | awk '{ sum += $10 } END { p
 apachetotalmem=$(echo "$topdata" | grep "apache" | awk '{ sum += $10 } END { print sum }')
 
 # add data point to database
-mysql -u root "--password=${mysql_root_pass}" -e"CREATE DATABASE IF NOT EXISTS server; use server; CREATE TABLE IF NOT EXISTS performance (datetime BIGINT, PRIMARY KEY (datetime), loadavg1 FLOAT(3), loadavg5 FLOAT(3), loadavg15 FLOAT(3), memorypercentused FLOAT(4), mysql FLOAT(4), es FLOAT(4), memcached FLOAT(4), parsoid FLOAT(4), apache FLOAT(4)); INSERT INTO performance (datetime, loadavg1, loadavg5, loadavg15, memorypercentused, mysql, es, memcached, parsoid, apache) VALUES ('$datetime', $loadavg1, $loadavg5, $loadavg15, $memorypercentused, $mysqltotalmem, $elastictotalmem, $memcachedtotalmem, $parsoidtotalmem, $apachetotalmem);"
+mysql -u root "--password=${mysql_root_pass}" -e"CREATE DATABASE IF NOT EXISTS server; use server; CREATE TABLE IF NOT EXISTS performance (datetime BIGINT, PRIMARY KEY (datetime), loadavg1 FLOAT(3), loadavg5 FLOAT(3), loadavg15 FLOAT(3), memorypercentused FLOAT(4), mysql FLOAT(4), es FLOAT(4), memcached FLOAT(4), parsoid FLOAT(4), apache FLOAT(4), jobs FLOAT(4)); INSERT INTO performance (datetime, loadavg1, loadavg5, loadavg15, memorypercentused, mysql, es, memcached, parsoid, apache, jobs) VALUES ('$datetime', $loadavg1, $loadavg5, $loadavg15, $memorypercentused, $mysqltotalmem, $elastictotalmem, $memcachedtotalmem, $parsoidtotalmem, $apachetotalmem, $jobs);"
 
 jsontitle="Performance Report"
 
