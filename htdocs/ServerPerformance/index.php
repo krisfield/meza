@@ -72,6 +72,8 @@ while( $row = mysqli_fetch_assoc($res) ){
 
 }
 $maxJobsValue = max($jobsTemp);
+// for small number of jobs, normalize to 100
+if( $maxJobsValue < 100 ){ $maxJobsValue = 100; }
 
 mysqli_data_seek($res, 0);
 
