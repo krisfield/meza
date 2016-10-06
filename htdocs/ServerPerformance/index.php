@@ -43,7 +43,8 @@ $query = "SELECT
             es,
             memcached,
             parsoid,
-            apache
+            apache,
+            jobs
         FROM $dbtable
         WHERE DATE_FORMAT(datetime, '%Y-%m-%d') >= DATE_FORMAT(NOW(), '%Y-%m-%d') - INTERVAL $daysOfData DAY;";
 
@@ -61,12 +62,25 @@ $variables = array("1-min Load Avg"=>"loadavg1",
     "Elasticsearch"=>"es",
     "Memcached"=>"memcached",
     "Parsoid"=>"parsoid",
-    "Apache"=>"apache");
+    "Apache"=>"apache",
+    "Jobs"=>"jobs");
+
+// Get max value of jobs, to be used for normalization
 while( $row = mysqli_fetch_assoc($res) ){
 
-    list($ts, $loadavg1, $loadavg5, $loadavg15, $memorypercentused, $mysql, $es, $memcached, $parsoid, $apache
+    $jobsTemp[] = floatval($row['jobs']);
+
+}
+$maxJobsValue = max($jobsTemp);
+
+mysqli_data_seek($res, 0);
+
+// Now pull all the data from the query results and scale as necessary
+while( $row = mysqli_fetch_assoc($res) ){
+
+    list($ts, $loadavg1, $loadavg5, $loadavg15, $memorypercentused, $mysql, $es, $memcached, $parsoid, $apache, $jobs
         ) = array($row['ts'], $row['loadavg1'], $row['loadavg5'], $row['loadavg15'], $row['memorypercentused'],
-        $row['mysql'], $row['es'], $row['memcached'], $row['parsoid'], $row['apache']);
+        $row['mysql'], $row['es'], $row['memcached'], $row['parsoid'], $row['apache'], $row['jobs']);
 
     foreach( $variables as $varname => $varvalue ){
 
@@ -74,6 +88,11 @@ while( $row = mysqli_fetch_assoc($res) ){
             $tempdata[$varvalue][] = array(
                 'x' => strtotime($ts) * 1000,       // e.g. from 20160624080000 to 1384236000000
                 'y' => floatval($$varvalue) * 100,  // e.g. from 0.1 to 10
+            );
+        } else if( $varvalue == "jobs"){
+            $tempdata[$varvalue][] = array(
+                'x' => strtotime($ts) * 1000,                 // e.g. from 20160624080000 to 1384236000000
+                'y' => floatval($$varvalue) * 100 / $maxJobsValue,  // e.g. from 4683 to some value between 0-100 relative to max
             );
         } else {
             $tempdata[$varvalue][] = array(
@@ -93,12 +112,15 @@ while( $row = mysqli_fetch_assoc($res) ){
 
 mysqli_close($mysqli);
 
+
 foreach( $variables as $varname => $varvalue ){
+    
     $data[] = array(
         'key'       => $varname,                // e.g. loadavg1
         'values'    => $tempdata[$varvalue],    // e.g. {"x":1384236000000,"y":0.1},{"x":1384256000000,"y":0.2},etc
     );
 }
+
 
 /*
 *
