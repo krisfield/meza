@@ -139,6 +139,7 @@ yum install -y \
     m4 \
     expect \
     expectk \
+    GraphicsMagick \
     ghostscript
 cmd_profile "END yum install dependency list"
 

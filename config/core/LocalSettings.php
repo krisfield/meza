@@ -335,7 +335,7 @@ $wgSessionCacheType = CACHE_NONE; // optional
 $wgEnableUploads = true;
 $wgMaxUploadSize = 1024*1024*100; // 100 MB
 $wgUseImageMagick = true;
-$wgImageMagickConvertCommand = "/usr/bin/convert";
+$wgImageMagickConvertCommand = "/usr/bin/gm";
 
 # InstantCommons allows wiki to use images from http://commons.wikimedia.org
 $wgUseInstantCommons = false;
