@@ -10,6 +10,7 @@ This manual explains how to add wikis to your meza install. There are two method
 To create a new wiki you use the `create-wiki.sh` script.
 
 ```bash
+cd /opt/meza/scripts
 sudo bash create-wiki.sh
 ```
 
